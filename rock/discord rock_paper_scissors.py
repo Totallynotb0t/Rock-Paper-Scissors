@@ -21,12 +21,22 @@ async def on_message(message):
 
     if message.content.startswith('!rps'):
         await message.channel.send("Welcome to Rock, Paper, Scissors!")
-        player_choice = await get_player_choice(message.channel)
-        if player_choice:
-            computer_choice = random.choice(["rock", "paper", "scissors"])
-            await message.channel.send(f"Computer chooses: {computer_choice}")
-            winner = determine_winner(player_choice, computer_choice)
-            await message.channel.send(winner)
+        while True:
+            player_choice = await get_player_choice(message.channel)
+            if player_choice:
+                computer_choice = random.choice(["rock", "paper", "scissors"])
+                await message.channel.send(f"Computer chooses: {computer_choice}")
+                winner = determine_winner(player_choice, computer_choice)
+                await message.channel.send(winner)
+                await message.channel.send("Do you want to play again? (yes/no)")
+                try:
+                    response = await client.wait_for('message', check=lambda m: m.channel == message.channel and m.author == message.author, timeout=30)
+                    if response.content.lower() != 'yes':
+                        await message.channel.send("Thanks for playing!")
+                        break
+                except asyncio.TimeoutError:
+                    await message.channel.send("Timeout! Thanks for playing!")
+                    break
 
 async def get_player_choice(channel):
     await channel.send("Choose: rock, paper, or scissors?")
@@ -48,4 +58,4 @@ def determine_winner(player_choice, computer_choice):
         return "Computer wins!"
 
 # Run the bot with the provided token
-client.run('Insert Your Bot Token')
+client.run('Your Discord Bot Token')
